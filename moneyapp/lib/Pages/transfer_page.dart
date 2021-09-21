@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:moneyapp/Utils/color_palette.dart';
 import 'package:moneyapp/Utils/status_model.dart';
+import 'package:moneyapp/Widgets/custom_form_tab_bar.dart';
 import 'package:moneyapp/Widgets/custom_list_tale.dart';
 import 'package:moneyapp/Widgets/custom_tab_bar.dart';
 
@@ -41,7 +43,29 @@ class TransferPage extends StatelessWidget {
   }
 }
 
-class HorizontalOptionMenu extends StatelessWidget {
+class HorizontalOptionMenu extends StatefulWidget {
+  @override
+  State<HorizontalOptionMenu> createState() => _HorizontalOptionMenuState();
+}
+
+class _HorizontalOptionMenuState extends State<HorizontalOptionMenu> {
+  final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
+  final textStyle =
+      TextStyle(fontWeight: FontWeight.w600, fontSize: 18, color: Colors.white);
+  final titleStyle =
+      TextStyle(fontWeight: FontWeight.bold, fontSize: 20, color: Colors.white);
+  final hintStyle = TextStyle(color: Colors.grey);
+  final _currencies = [
+    "Comida",
+    "Transporte",
+    "Ocio",
+    "Ropa",
+    "Coche",
+    "Criptomoneda",
+    "Salary"
+  ];
+  String _currentSelectedValue;
+
   @override
   Widget build(BuildContext context) {
     return ListView(
@@ -54,22 +78,54 @@ class HorizontalOptionMenu extends StatelessWidget {
           icon: Icons.transform_sharp,
           colors: [Colors.indigo[600], Colors.indigo],
           onTap: () {
-            showModalBottomSheet(
-                context: context,
-                builder: (BuildContext context) {
-                  return Wrap(
-                    children: [
-                      ListTile(
-                        title: Text("Quiero hacer un ingreso"),
-                        onTap: () {},
+            showDialog(
+              context: context,
+              builder: (BuildContext context) {
+                return AlertDialog(
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.all(
+                      Radius.circular(20),
+                    ),
+                  ),
+                  backgroundColor: ColorPalette.blueSea,
+                  actions: [
+                    TextButton(
+                      child: const Text(
+                        'Cancelar',
                       ),
-                      ListTile(
-                        title: Text("Quiero realizar una retirada"),
-                        onTap: () {},
-                      )
+                      onPressed: () {
+                        Navigator.of(context).pop();
+                      },
+                    ),
+                    TextButton(
+                      child: const Text('Aceptar'),
+                      onPressed: () {
+                        Navigator.of(context).pop();
+                      },
+                    ),
+                  ],
+                  content: Wrap(
+                    children: [
+                      Text(
+                        "Nueva Operacion",
+                        style: titleStyle,
+                      ),
+                      SizedBox(
+                        height: 30.0,
+                      ),
+                      Divider(
+                        color: Colors.white,
+                        height: 4,
+                      ),
+                      SizedBox(
+                        height: 30.0,
+                      ),
+                      _getFormulario(),
                     ],
-                  );
-                });
+                  ),
+                );
+              },
+            );
             //Navigator.pushNamed(context, 'operations');
           },
         ),
@@ -104,6 +160,143 @@ class HorizontalOptionMenu extends StatelessWidget {
           },
         ),
       ],
+    );
+  }
+
+  Form _getFormulario() {
+    return Form(
+      key: _formKey,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          CustomFormTabBar(),
+          SizedBox(
+            height: 10,
+          ),
+          Padding(
+            padding: const EdgeInsets.only(top: 3.0, bottom: 8.0),
+            child: TextFormField(
+              style: TextStyle(color: Colors.white),
+              keyboardType: TextInputType.numberWithOptions(),
+              decoration: InputDecoration(
+                focusedBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(25.0),
+                  borderSide: BorderSide(
+                    color: Colors.white,
+                  ),
+                ),
+                enabledBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(25.0),
+                  borderSide: BorderSide(
+                    color: Colors.white,
+                    width: 1.0,
+                  ),
+                ),
+                prefixIcon: Icon(
+                  Icons.attach_money,
+                  color: Colors.green,
+                ),
+                hintText: 'Ingresa €€',
+                hintStyle: hintStyle,
+              ),
+              validator: (String value) {
+                if (value == null || value.isEmpty) {
+                  return 'Ingresa una cantidad';
+                }
+                return null;
+              },
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.only(top: 3.0, bottom: 8.0),
+            child: Concepto(),
+          ),
+          Padding(
+            padding: const EdgeInsets.only(top: 3.0, bottom: 8.0),
+            child: FormField<String>(
+              builder: (FormFieldState<String> state) {
+                return InputDecorator(
+                  decoration: InputDecoration(
+                    focusedBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(25.0),
+                      borderSide: BorderSide(
+                        color: Colors.white,
+                      ),
+                    ),
+                    enabledBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(25.0),
+                      borderSide: BorderSide(
+                        color: Colors.white,
+                        width: 1.0,
+                      ),
+                    ),
+                    prefixIcon: Icon(
+                      Icons.category,
+                      color: Colors.red,
+                    ),
+                    hintText: 'Selecciona categoria',
+                    hintStyle: hintStyle,
+                  ),
+                  isEmpty: _currentSelectedValue == '',
+                  child: DropdownButtonHideUnderline(
+                    child: DropdownButton<String>(
+                      dropdownColor: ColorPalette.blueStrong,
+                      value: _currentSelectedValue,
+                      isDense: true,
+                      style: TextStyle(color: Colors.white),
+                      onChanged: (String newValue) {
+                        setState(() {
+                          _currentSelectedValue = newValue;
+                          state.didChange(newValue);
+                        });
+                      },
+                      items: _currencies.map((String value) {
+                        return DropdownMenuItem<String>(
+                          value: value,
+                          child: Text(value),
+                        );
+                      }).toList(),
+                    ),
+                  ),
+                );
+              },
+            ),
+          )
+        ],
+      ),
+    );
+  }
+}
+
+class Concepto extends StatelessWidget {
+  final hintStyle = TextStyle(color: Colors.grey);
+
+  @override
+  Widget build(BuildContext context) {
+    return TextFormField(
+      keyboardType: TextInputType.numberWithOptions(),
+      style: TextStyle(color: Colors.white),
+      decoration: InputDecoration(
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(25.0),
+          borderSide: BorderSide(
+            color: Colors.white,
+          ),
+        ),
+        enabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(25.0),
+          borderSide: BorderSide(
+            color: Colors.white,
+            width: 1.0,
+          ),
+        ),
+        prefixIcon: Icon(
+          Icons.text_fields,
+          color: Colors.amberAccent,
+        ),
+        hintText: 'Bizum de Diego',
+        hintStyle: hintStyle,
+      ),
     );
   }
 }
