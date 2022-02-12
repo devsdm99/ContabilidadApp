@@ -87,7 +87,7 @@ class _HorizontalOptionMenuState extends State<HorizontalOptionMenu> {
                       Radius.circular(20),
                     ),
                   ),
-                  backgroundColor: ColorPalette.blueSea,
+                  backgroundColor: Colors.black87,
                   actions: [
                     TextButton(
                       child: const Text(
